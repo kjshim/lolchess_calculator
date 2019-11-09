@@ -11,7 +11,6 @@ default_height = 60
 
 def clear():
     T_onboard.delete(1.0, tk.END)
-    t_ondeck.delete(1.0, tk.END)
     t_onshop.delete(1.0, tk.END)
 
 
@@ -34,7 +33,7 @@ def on_select(e):
 def parse_game_state():
     level = int(e_level.get())
     r = base_data.InGameState(
-        level, 0, hero_inst_from_textarea(T_onboard), hero_inst_from_textarea(t_ondeck), hero_from_textarea(t_onshop)
+        level, 0, hero_inst_from_textarea(T_onboard), [], hero_from_textarea(t_onshop)
     )
     return r
 
@@ -92,29 +91,24 @@ def calculate():
         raise e
 
 
-tk.Label(root, text="on_board").grid(row=1, column=1)
+tk.Label(root, text="on_board").grid(row=3, column=1)
 T_onboard = tk.Text(root, height=default_height, width=30)
-T_onboard.grid(row=2, column=1)
+T_onboard.grid(row=4, column=1)
 T_onboard.insert(tk.END, "")
 
-tk.Label(root, text="on_deck").grid(row=1, column=2)
-t_ondeck = tk.Text(root, height=default_height, width=30)
-t_ondeck.grid(row=2, column=2)
-t_ondeck.insert(tk.END, "")
-
-tk.Label(root, text="on_shop").grid(row=1, column=3)
+tk.Label(root, text="on_shop").grid(row=3, column=3)
 t_onshop = tk.Text(root, height=default_height, width=30)
-t_onshop.grid(row=2, column=3)
+t_onshop.grid(row=4, column=3)
 t_onshop.insert(tk.END, "")
 
-tk.Label(root, text="output").grid(row=1, column=4)
+tk.Label(root, text="output").grid(row=3, column=4)
 t_output = tk.Text(root, height=default_height, width=200, bg="black", fg="white", wrap=tk.NONE)
-t_output.grid(row=2, column=4)
+t_output.grid(row=4, column=4)
 t_output.insert(tk.END, "stdout/err")
 
-tk.Label(root, text="reference").grid(row=1, column=5)
+tk.Label(root, text="reference").grid(row=3, column=5)
 t_ref = tk.Text(root, height=default_height, width=30, bg="black", fg="white", wrap=tk.NONE)
-t_ref.grid(row=2, column=5)
+t_ref.grid(row=4, column=5)
 reftext = "\n".join(sorted([f"{h.cost} - {h.name}" for h in base_data.ALL_HEROES]))
 t_ref.insert(tk.END, reftext)
 t_ref.config(state=tk.DISABLED)
@@ -125,14 +119,14 @@ e_roll_count = tk.Entry(root, width=5)
 e_roll_count.grid(row=0, column=2)
 e_roll_count.insert(tk.END, "5")
 
-tk.Label(root, text="Level").grid(row=0, column=3)
+tk.Label(root, text="Level").grid(row=1, column=1)
 e_level = tk.Entry(root, width=5)
-e_level.grid(row=0, column=4)
+e_level.grid(row=1, column=2)
 e_level.insert(tk.END, "1")
 
-tk.Label(root, text="Deck Size").grid(row=0, column=5)
+tk.Label(root, text="Deck Size").grid(row=2, column=1)
 e_deck_size = tk.Entry(root, width=5)
-e_deck_size.grid(row=0, column=6)
+e_deck_size.grid(row=2, column=2)
 e_deck_size.insert(tk.END, "4")
 
 b = tk.Button(root, text="Calculate", command=calculate)
