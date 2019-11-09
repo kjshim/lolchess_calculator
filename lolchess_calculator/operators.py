@@ -18,14 +18,14 @@ for hero in ALL_HEROES:
     HEROES_BY_LEVEL[hero.cost].append(hero)
 
     for origin in hero.origins:
-        if origin not in HEROES_BY_SYNERGY:
-            HEROES_BY_SYNERGY[origin] = []
-        HEROES_BY_SYNERGY[origin].append(hero)
+        if origin.name not in HEROES_BY_SYNERGY:
+            HEROES_BY_SYNERGY[origin.name] = []
+        HEROES_BY_SYNERGY[origin.name].append(hero)
 
     for hero_class in hero.hero_classes:
-        if hero_class not in HEROES_BY_SYNERGY:
-            HEROES_BY_SYNERGY[hero_class] = []
-        HEROES_BY_SYNERGY[hero_class].append(hero)
+        if hero_class.name not in HEROES_BY_SYNERGY:
+            HEROES_BY_SYNERGY[hero_class.name] = []
+        HEROES_BY_SYNERGY[hero_class.name].append(hero)
 
 
 def calculate_synergy_score(synergy_info: list) -> float:
@@ -58,13 +58,13 @@ def get_synergy_from_deck(deck: Set[Hero]) -> List[Synergy]:
     active_list = []
     for h in deck:
         for c in h.hero_classes:
-            class_count[c] += 1
+            class_count[c.name] += 1
         for c in h.origins:
-            class_count[c] += 1
+            class_count[c.name] += 1
     for k, v in class_count.items():
-        possible_cnt = [cnt for cnt in ALL_SYNERGY[k.name] if cnt <= v]
+        possible_cnt = [cnt for cnt in ALL_SYNERGY[k] if cnt <= v]
         if possible_cnt:
-            active_list.append((k, max(possible_cnt), v))
+            active_list.append(Synergy(k, possible_cnt[-1]))
     return active_list
 
 
@@ -123,23 +123,6 @@ def simulate_with_no_levup(start_level: int, roll_count: int) -> Dict[str, float
     return seen_count_per_game
 
 
-def generate_precalculate_synergy_combinations(output_json_path: pathlib.Path):
-    all_n_result = {}
-    for n in range(1, 4):
-        result = []
-        all_combinations = list(combinations(ALL_HEROES, n))
-        print(f"Calculating n: {n}, comb: {len(all_combinations)}")
-        for c in all_combinations:
-            synergy = get_synergy_from_deck(c)
-            score = calculate_synergy_score(synergy)
-            result.append(
-                (score, [v.name for v in c])
-            )
-        all_n_result[n] = sorted(result, reverse=True)
-    with output_json_path.open("w") as f:
-        json.dump(all_n_result, f, indent=2)
-
-
 def add_seen_count_plus_game_state(seen_count: Dict[str, float], game_state: InGameState):
     result = copy.deepcopy(seen_count)
 
@@ -151,7 +134,7 @@ def add_seen_count_plus_game_state(seen_count: Dict[str, float], game_state: InG
             result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
     for h in game_state.on_shop:
         if h.name in result.keys():
-            result[hero.name] += 1
+            result[h.name] += 1
 
     return result
 
@@ -168,36 +151,98 @@ def calculate_chance_of_getting_deck(deck: List[Hero], game_state: InGameState,
 @dataclass(frozen=True)
 class SynergyLikelihoodItem:
     chance: float
-    synergies: List[Tuple[str, int]]
+    synergies: List[Synergy]
     likely_heroes: List[Tuple[float, str]]
 
     def __repr__(self):
-        syn_list_str = " + ".join([f"({v[0]} * {v[1]}" for v in self.synergies])
-        hero_hints = "/".join([f"{v[1]}({v[0]:.2f})" for v in self.likely_heroes])
-        return f"{self.chance*100:.2f}% - [{syn_list_str}] : {hero_hints}"
+        syn_list_str = " + ".join([f"({v.name} * {v.count})" for v in self.synergies])
+        hero_hints = " ".join([f"{v[1]} ({v[0]:.2f})" for v in self.likely_heroes])
+        return f"{self.chance * 100:.2f}% \t- [{syn_list_str}]\t: {hero_hints}"
 
 
-def calculate_synergy_likelyhood_from_seen_counter(seen_counter: Dict[str, float], game_state: InGameState) -> List[
+def create_synergy_to_chance_hero_sorted_list(seen_counter: Dict[str, float]):
+    """
+    Dict[synergy] = [ (chance, hero) ....]
+    :param seen_counter:
+    :return:
+    """
+    result = collections.defaultdict(list)
+    for synergy in ALL_SYNERGY:
+        for h in HEROES_BY_SYNERGY[synergy]:
+            result[synergy].append((seen_counter[h.name], h.name))
+        result[synergy].sort(reverse=True)
+    return result
+
+
+def calculate_likelihood_for_synergy(seen_counter: Dict[str, float],
+                                     synergy_to_chance_map: Dict[str, List[Tuple[float, str]]],
+                                     synergy_list: List[Synergy]) -> SynergyLikelihoodItem:
+    cum_chance = 1.0
+    required_hero = set()
+    for synergy in synergy_list:
+        chance_to_hero = synergy_to_chance_map[synergy.name]
+        if len(chance_to_hero) < synergy.count:
+            cum_chance *= 0.0
+            break
+        for i in range(synergy.count):
+            cum_chance *= min(1.0, chance_to_hero[i][0])
+            required_hero.add(chance_to_hero[i][1])
+    if (len(required_hero) > 9):
+        cum_chance *= 0.0
+    hero_likelyhood = sorted([(seen_counter[h], h) for h in required_hero], reverse=True)
+    result = SynergyLikelihoodItem(cum_chance, synergy_list, hero_likelyhood)
+    return result
+
+
+def score_deck(deck: SynergyLikelihoodItem) -> float:
+    score = 0.0
+    for h in deck.likely_heroes:
+        hero = ALL_HEROES_DICT[h[1]]
+        star_coeff = 1.0
+        if h[0] > 3.0:
+            star_coeff = 2.5
+        if h[0] > 9.0:
+            star_coeff = 4.0
+
+        synergy_coeff = 1.0
+        for syn_name in [v.name for v in hero.hero_classes] + [v.name for v in hero.origins]:
+            for active_syn in deck.synergies:
+                if syn_name == active_syn.name:
+                    synergy_coeff *= (1.0 + ((active_syn.count * 0.1) ** 3) * 5)
+
+        score += (hero.cost * star_coeff * synergy_coeff)
+    return score * deck.chance
+
+
+def calculate_synergy_likelyhood_from_seen_counter(seen_counter: Dict[str, float],
+                                                   game_state: InGameState) -> List[
     SynergyLikelihoodItem]:
     """
     :param seen_counter:
     :return:
     """
     seen_counter_with_mine = add_seen_count_plus_game_state(seen_counter, game_state)
-    chances = []
+    synergy_likelihood_list = []
+    synergy_to_chance_map = create_synergy_to_chance_hero_sorted_list(seen_counter_with_mine)
+
+    synergies_to_check = []
+
+    # 1 synergy
     for synergy in HEROES_BY_SYNERGY:
-        available_synergy_levels = ALL_SYNERGY[synergy.name]
-        chance_to_hero = []
-        for h in HEROES_BY_SYNERGY[synergy]:
-            chance_to_hero.append((seen_counter_with_mine[h.name], h.name))
-        chance_to_hero.sort(reverse=True, key=lambda v: v[0])
-        for lv in reversed(available_synergy_levels):
-            if len(chance_to_hero) >= lv:
-                item = SynergyLikelihoodItem(
-                    chance_to_hero[lv - 1][0],
-                    [(synergy.name, lv)],
-                    chance_to_hero[:lv]
-                )
-                chances.append(item)
-    chances.sort(reverse=True, key=lambda v: v.chance)
-    return chances
+        for lv in ALL_SYNERGY[synergy]:
+            synergies_to_check.append(Synergy(synergy, lv))
+
+    synergy_combinations = []
+    for i in range(4):
+        synergy_combinations += combinations(synergies_to_check, i)
+
+    for synergy_list in synergy_combinations:
+        if len(set([v.name for v in synergy_list])) < len(synergy_list):
+            continue
+        item = calculate_likelihood_for_synergy(seen_counter_with_mine, synergy_to_chance_map,
+                                                synergy_list)
+        if item.chance > 0.0:
+            synergy_likelihood_list.append(item)
+        # assert get_synergy_from_deck()
+    synergy_likelihood_list.sort(reverse=True, key=lambda v: v.chance)
+    return synergy_likelihood_list

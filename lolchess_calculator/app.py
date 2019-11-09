@@ -53,8 +53,13 @@ def hero_inst_from_textarea(text_control):
 
 def parse_hero_inst_str(str_onboard):
     v1 = [str_tup.split(" ") for str_tup in str_onboard.strip().split("\n") if str_tup]
-    v2 = [base_data.get_hero_inst(v[0].strip(), 1) for v in v1]
-    return v2
+    result = []
+    for v in v1:
+        star = 1
+        if len(v) > 1:
+            star = int(v[1])
+        result.append(base_data.get_hero_inst(v[0], star))
+    return result
 
 
 def parse_hero_str(str_onboard):
@@ -68,8 +73,20 @@ def calculate():
 
         roll_count = int(e_roll_count.get())
         seen_count = operators.simulate_with_no_reroll(state.level, 0, roll_count)
+        deck_size = int(e_deck_size.get())
         synergy_chances = operators.calculate_synergy_likelyhood_from_seen_counter(seen_count, game_state)
-        output(pformat(synergy_chances))
+        interested = []
+        for v in synergy_chances:
+            if len(v.likely_heroes) != deck_size:
+                continue
+            # if sum([syn.count for syn in v.synergies]) <= deck_size:
+            #     continue
+            interested.append((operators.score_deck(v), v))
+        interested.sort(key=lambda v: v[0], reverse=True)
+        msg = ""
+        for v in interested[:20]:
+            msg += f"{v[0]:.2f}\t{pformat(v[1])}\n"
+        output(msg)
     except Exception as e:
         output(str(e))
         raise e
@@ -88,10 +105,10 @@ t_ondeck.insert(tk.END, "")
 tk.Label(root, text="on_shop").grid(row=1, column=3)
 t_onshop = tk.Text(root, height=default_height, width=30)
 t_onshop.grid(row=2, column=3)
-t_onshop.insert(tk.END, "Just a text Widget\nin two lines\n")
+t_onshop.insert(tk.END, "")
 
 tk.Label(root, text="output").grid(row=1, column=4)
-t_output = tk.Text(root, height=default_height, width=80, bg="black", fg="white", wrap=tk.NONE)
+t_output = tk.Text(root, height=default_height, width=200, bg="black", fg="white", wrap=tk.NONE)
 t_output.grid(row=2, column=4)
 t_output.insert(tk.END, "stdout/err")
 
@@ -112,6 +129,11 @@ tk.Label(root, text="Level").grid(row=0, column=3)
 e_level = tk.Entry(root, width=5)
 e_level.grid(row=0, column=4)
 e_level.insert(tk.END, "1")
+
+tk.Label(root, text="Deck Size").grid(row=0, column=5)
+e_deck_size = tk.Entry(root, width=5)
+e_deck_size.grid(row=0, column=6)
+e_deck_size.insert(tk.END, "4")
 
 b = tk.Button(root, text="Calculate", command=calculate)
 b.grid(row=0, column=0)

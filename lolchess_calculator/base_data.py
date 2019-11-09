@@ -15,8 +15,7 @@ class HeroClass:
 
 @dataclass(frozen=True)
 class Synergy:
-    origin: Optional[Origin]
-    hero_class: Optional[HeroClass]
+    name: str
     count: int
 
 

@@ -60,6 +60,8 @@ class TestBasicData(unittest.TestCase):
         count_till_lev_2 = operators.calculate_round_till_level(1, 0, 2)
         seen_count = operators.simulate_with_no_reroll(1, 0, operators.calculate_round_till_level(1, 0, 4))
         synergy_chances = operators.calculate_synergy_likelyhood_from_seen_counter(seen_count, game_state)
-        pprint(synergy_chances)
-        r = operators.calculate_chance_of_getting_deck(deck.heroes, game_state, seen_count)
-        pprint(r)
+        display = []
+        for deck in synergy_chances:
+            display.append((operators.score_deck(deck), deck))
+        display.sort(reverse=True, key=lambda v:v[0])
+        pprint(display[:30])
