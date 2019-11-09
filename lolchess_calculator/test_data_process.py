@@ -1,7 +1,11 @@
 import unittest
 from pprint import pprint
+from pathlib import Path
+
 from lolchess_calculator import base_data, operators
+
 import random
+
 
 class TestBasicData(unittest.TestCase):
     def test_hero_reading(self):
@@ -39,6 +43,19 @@ class TestBasicData(unittest.TestCase):
         pprint(sorted(results, reverse=True))
 
     def test_synergy_calc(self):
-        deck = random.choices(base_data.ALL_HEROES, k=8)
+        deck = base_data.DECK_DATA[0]
         pprint(deck)
-        pprint(operators.get_synergy_from_deck(deck))
+        synergy_info = operators.get_synergy_from_deck(deck.heroes)
+        pprint(synergy_info)
+        pprint(operators.calculate_synergy_score(synergy_info))
+
+    def test_combinations(self):
+        game_state = base_data.InGameState(
+            6, 0, [], [], []
+        )
+        deck = base_data.DECK_DATA[0]
+        # seen_count = operators.simulate_with_no_levup(3, 10)
+        seen_count = operators.simulate_with_no_reroll(1, 0, 5)
+
+        r = operators.calculate_chance_of_getting_deck(deck.heroes, game_state, seen_count)
+        pprint(r)

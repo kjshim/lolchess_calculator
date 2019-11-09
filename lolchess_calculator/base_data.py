@@ -47,14 +47,20 @@ class HeroInstance:
 @dataclass
 class InGameState:
     level: int
+    exp: int
+    # on_board: List[Hero]
+    # on_deck: List[Hero]
     on_board: List[HeroInstance]
     on_deck: List[HeroInstance]
-
+    on_shop: List[Hero]
 
 @dataclass(frozen=True)
 class DeckTemplate:
-    heroes: List[Hero]
+    name: str
+    desc: str
+    heroes: Set[Hero]
     desired_items: List[Tuple[Hero, Item]]
+    tier: int
 
 
 # Row = level 0~, Col = tier
@@ -236,4 +242,13 @@ LVUP_EXP_REQUIRED_FROM_LEVEL = [
     50,
     66,
     9999999999,
+]
+
+
+def hero_csv_to_list(hero_csv: str) -> Set[Hero]:
+    return [ALL_HEROES_DICT[v] for v in hero_csv.split(",")]
+
+
+DECK_DATA = [
+    DeckTemplate("deck1", "쪼렙 코그모/고렙 신지드 몰빵", hero_csv_to_list("워윅,코그모,렉사이,브라움,문도 박사,이즈리얼,올라프,신지드"), [], 1)
 ]
