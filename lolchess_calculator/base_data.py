@@ -1,4 +1,4 @@
-from typing import Set, List, Optional
+from typing import Set, List, Optional, Tuple
 from dataclasses import dataclass
 
 
@@ -10,6 +10,13 @@ class Origin:
 @dataclass(frozen=True)
 class HeroClass:
     name: str
+
+
+@dataclass(frozen=True)
+class Synergy:
+    origin: Optional[Origin]
+    hero_class: Optional[HeroClass]
+    count: int
 
 
 @dataclass(frozen=True)
@@ -42,6 +49,12 @@ class InGameState:
     level: int
     on_board: List[HeroInstance]
     on_deck: List[HeroInstance]
+
+
+@dataclass(frozen=True)
+class DeckTemplate:
+    heroes: List[Hero]
+    desired_items: List[Tuple[Hero, Item]]
 
 
 # Row = level 0~, Col = tier
@@ -178,3 +191,31 @@ ALL_HEROES = [
          attack=40.0, attack_speed=0.65, dps=26.0),
     Hero(name='트위치', cost=4, origins={Origin(name='맹독')}, hero_classes={HeroClass(name='정찰대')}, hp=650.0, armor=20.0,
          attack=60.0, attack_speed=0.75, dps=45.0)]
+
+ALL_SYNERGY = [
+    {HeroClass(name='신비술사'): [2, 4],
+     HeroClass(name='파수꾼'): [2, 4, 6],
+     HeroClass(name='암살자'): [3, 6],
+     HeroClass(name='드루이드'): [2],
+     HeroClass(name='아바타'): [1],
+     HeroClass(name='광전사'): [3, 6],
+     HeroClass(name='포식자'): [2, 4, 6],
+     HeroClass(name='요술사'): [3, 6],
+     HeroClass(name='검사'): [2, 4, 6],
+     HeroClass(name='소환사'): [3, 6],
+     HeroClass(name='정찰대'): [2, 4, 6],
+     HeroClass(name='연금술사'): [1],
+     Origin(name='바다'): [2, 4, 6],
+     Origin(name='빛'): [3, 6, 9],
+     Origin(name='강철'): [2, 3, 4],
+     Origin(name='숲'): [3],
+     Origin(name='지옥불'): [3, 6, 9],
+     Origin(name='그림자'): [2, 4],
+     Origin(name='수정'): [2, 4],
+     Origin(name='바람'): [2, 3, 4],
+     Origin(name='빙하'): [2, 4, 6],
+     Origin(name='전기'): [2, 3, 4],
+     Origin(name='사막'): [2, 4],
+     Origin(name='대지'): [2],
+     Origin(name='맹독'): [3]}
+]

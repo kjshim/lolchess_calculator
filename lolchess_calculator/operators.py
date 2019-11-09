@@ -1,13 +1,17 @@
 import random
 from typing import List
 
-from base_data import Hero, ALL_HEROES, REROLL_RATE
+from base_data import *
 
 HEROES_BY_LEVEL = {}
 for hero in ALL_HEROES:
     if hero.cost not in HEROES_BY_LEVEL:
         HEROES_BY_LEVEL[hero.cost] = []
     HEROES_BY_LEVEL[hero.cost].append(hero)
+
+
+def calculate_synergy_score(synergy_type: Synergy) -> float:
+    return float(synergy_type.count ** 2)
 
 
 def roll_at_level(level: int) -> List[Hero]:
