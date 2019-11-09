@@ -251,8 +251,12 @@ def hero_csv_to_list(hero_csv: str) -> Set[Hero]:
     return [ALL_HEROES_DICT[v] for v in hero_csv.split(",")]
 
 
-def fuzzy_get_hero(name: str):
-    return difflib.get_close_matches(name, ALL_HEROES_DICT.keys(), 1, 0.1)[0]
+def fuzzy_get_hero(name: str) -> Optional[Hero]:
+    r = difflib.get_close_matches(name, ALL_HEROES_DICT.keys(), 1, 0.1)
+    if r:
+        return r[0]
+    else:
+        raise RuntimeError(f"fuzzy_get_hero: Unknown name : {name}")
 
 
 def get_hero_inst(name: str, star: int):

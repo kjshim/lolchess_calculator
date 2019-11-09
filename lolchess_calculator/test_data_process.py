@@ -52,18 +52,14 @@ class TestBasicData(unittest.TestCase):
     def test_combinations(self):
         game_state = base_data.InGameState(
             6, 0, [
-                base_data.get_hero_inst("문도", 2),
-                base_data.get_hero_inst("아리", 2),
-                base_data.get_hero_inst("올라프", 1),
+                base_data.get_hero_inst("쓰레쉬", 2),
+                base_data.get_hero_inst("브라움", 2),
             ], [], []
         )
         deck = base_data.DECK_DATA[0]
         count_till_lev_2 = operators.calculate_round_till_level(1, 0, 2)
-        assert (count_till_lev_2) == 1
-        count_till_lev_5 = operators.calculate_round_till_level(1, 0, 5)
-        print(count_till_lev_5)
-        # seen_count = operators.simulate_with_no_levup(3, 10)
-        seen_count = operators.simulate_with_no_reroll(1, 0, count_till_lev_5)
-
+        seen_count = operators.simulate_with_no_reroll(1, 0, operators.calculate_round_till_level(1, 0, 4))
+        synergy_chances = operators.calculate_synergy_likelyhood_from_seen_counter(seen_count, game_state)
+        pprint(synergy_chances)
         r = operators.calculate_chance_of_getting_deck(deck.heroes, game_state, seen_count)
         pprint(r)
