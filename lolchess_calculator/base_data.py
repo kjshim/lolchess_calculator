@@ -192,30 +192,48 @@ ALL_HEROES = [
     Hero(name='트위치', cost=4, origins={Origin(name='맹독')}, hero_classes={HeroClass(name='정찰대')}, hp=650.0, armor=20.0,
          attack=60.0, attack_speed=0.75, dps=45.0)]
 
-ALL_SYNERGY = [
-    {HeroClass(name='신비술사'): [2, 4],
-     HeroClass(name='파수꾼'): [2, 4, 6],
-     HeroClass(name='암살자'): [3, 6],
-     HeroClass(name='드루이드'): [2],
-     HeroClass(name='아바타'): [1],
-     HeroClass(name='광전사'): [3, 6],
-     HeroClass(name='포식자'): [2, 4, 6],
-     HeroClass(name='요술사'): [3, 6],
-     HeroClass(name='검사'): [2, 4, 6],
-     HeroClass(name='소환사'): [3, 6],
-     HeroClass(name='정찰대'): [2, 4, 6],
-     HeroClass(name='연금술사'): [1],
-     Origin(name='바다'): [2, 4, 6],
-     Origin(name='빛'): [3, 6, 9],
-     Origin(name='강철'): [2, 3, 4],
-     Origin(name='숲'): [3],
-     Origin(name='지옥불'): [3, 6, 9],
-     Origin(name='그림자'): [2, 4],
-     Origin(name='수정'): [2, 4],
-     Origin(name='바람'): [2, 3, 4],
-     Origin(name='빙하'): [2, 4, 6],
-     Origin(name='전기'): [2, 3, 4],
-     Origin(name='사막'): [2, 4],
-     Origin(name='대지'): [2],
-     Origin(name='맹독'): [3]}
+ALL_HEROES_DICT = {
+    v.name: v for v in ALL_HEROES
+}
+ALL_SYNERGY = {
+    '신비술사': [2, 4],
+    '파수꾼': [2, 4, 6],
+    '암살자': [3, 6],
+    '드루이드': [2],
+    '아바타': [1],
+    '광전사': [3, 6],
+    '포식자': [2, 4, 6],
+    '요술사': [3, 6],
+    '검사': [2, 4, 6],
+    '소환사': [3, 6],
+    '정찰대': [2, 4, 6],
+    '연금술사': [1],
+    '바다': [2, 4, 6],
+    '빛': [3, 6, 9],
+    '강철': [2, 3, 4],
+    '숲': [3],
+    '지옥불': [3, 6, 9],
+    '그림자': [2, 4],
+    '수정': [2, 4],
+    '바람': [2, 3, 4],
+    '빙하': [2, 4, 6],
+    '전기': [2, 3, 4],
+    '사막': [2, 4],
+    '대지': [2],
+    '맹독': [3]
+}
+
+EXP_PER_ROUND = 2
+
+LVUP_EXP_REQUIRED_FROM_LEVEL = [
+    None,  # no 0 lv. NA
+    0,
+    2,
+    6,
+    10,
+    20,
+    32,
+    50,
+    66,
+    9999999999,
 ]
