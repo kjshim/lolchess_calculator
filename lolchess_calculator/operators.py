@@ -54,6 +54,19 @@ def get_synergy_from_deck(deck: Set[Hero]) -> List[Synergy]:
     return active_list
 
 
+def calculate_round_till_level(start_level: int, start_exp: int, end_level: int):
+    count = 0
+    cur_lv = start_level
+    cur_exp = start_exp
+
+    while cur_lv < end_level:
+        cur_exp += 2
+        if cur_exp >= LVUP_EXP_REQUIRED_FROM_LEVEL[cur_lv]:
+            cur_exp -= LVUP_EXP_REQUIRED_FROM_LEVEL[cur_lv]
+            cur_lv += 1
+        count += 1
+    return count
+
 def simulate_with_no_reroll(start_level: int, start_exp: int, roll_count: int):
     n_try = int(50000 / roll_count)
     total_seen = 0
@@ -119,5 +132,9 @@ def calculate_chance_of_getting_deck(deck: List[Hero], game_state: InGameState, 
 
     for h_inst in game_state.on_deck:
         result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
+    for h_inst in game_state.on_board:
+        result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
+    for h in game_state.on_shop:
+        result[hero.name] += 1
 
     return result

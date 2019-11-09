@@ -1,5 +1,6 @@
 from typing import Set, List, Optional, Tuple
 from dataclasses import dataclass
+import difflib
 
 
 @dataclass(frozen=True)
@@ -53,6 +54,7 @@ class InGameState:
     on_board: List[HeroInstance]
     on_deck: List[HeroInstance]
     on_shop: List[Hero]
+
 
 @dataclass(frozen=True)
 class DeckTemplate:
@@ -247,6 +249,18 @@ LVUP_EXP_REQUIRED_FROM_LEVEL = [
 
 def hero_csv_to_list(hero_csv: str) -> Set[Hero]:
     return [ALL_HEROES_DICT[v] for v in hero_csv.split(",")]
+
+
+def fuzzy_get_hero(name: str):
+    return difflib.get_close_matches(name, ALL_HEROES_DICT.keys(), 1, 0.0)[0]
+
+
+def get_hero_inst(name: str, star: int):
+    return HeroInstance(get_hero(name), star, [])
+
+
+def get_hero(name):
+    return ALL_HEROES_DICT[fuzzy_get_hero(name)]
 
 
 DECK_DATA = [

@@ -51,11 +51,15 @@ class TestBasicData(unittest.TestCase):
 
     def test_combinations(self):
         game_state = base_data.InGameState(
-            6, 0, [], [], []
+            6, 0, [base_data.get_hero_inst("문도", 2)], [], []
         )
         deck = base_data.DECK_DATA[0]
+        count_till_lev_2 = operators.calculate_round_till_level(1, 0, 2)
+        assert (count_till_lev_2) == 1
+        count_till_lev_5 = operators.calculate_round_till_level(1, 0, 5)
+        print(count_till_lev_5)
         # seen_count = operators.simulate_with_no_levup(3, 10)
-        seen_count = operators.simulate_with_no_reroll(1, 0, 5)
+        seen_count = operators.simulate_with_no_reroll(1, 0, count_till_lev_5)
 
         r = operators.calculate_chance_of_getting_deck(deck.heroes, game_state, seen_count)
         pprint(r)
