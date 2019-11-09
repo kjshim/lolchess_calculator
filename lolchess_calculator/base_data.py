@@ -30,6 +30,20 @@ class Item:
     name: str
 
 
+@dataclass
+class HeroInstance:
+    hero: Hero
+    star: int
+    items: List[Item]
+
+
+@dataclass
+class InGameState:
+    level: int
+    on_board: List[HeroInstance]
+    on_deck: List[HeroInstance]
+
+
 # Row = level 0~, Col = tier
 REROLL_RATE = [
     [.0, .0, .0, .0, .0],
