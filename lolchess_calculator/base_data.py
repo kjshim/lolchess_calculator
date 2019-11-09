@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Optional
 from dataclasses import dataclass
 
 
@@ -24,6 +24,38 @@ class Hero:
     attack_speed: float
     dps: float
 
+
+@dataclass(frozen=True)
+class Item:
+    name: str
+
+
+# Row = level 0~, Col = tier
+REROLL_RATE = [
+    [.0, .0, .0, .0, .0],
+    [1.0, .0, .0, .0, .0],
+    [1.0, .0, .0, .0, .0],
+    [0.7, .25, .05, .0, .0],
+    [.5, .35, .15, .0, .0],
+    [.35, .35, .25, .05, .0],
+    [.25, .35, .30, .10, .0],
+    [.20, .30, .33, .15, .02],
+    [.15, .20, .35, .24, .06],
+    [.10, .15, .30, .30, .15],
+]
+
+ALL_ITEMS = [Item(v) for v in
+             [
+                 "B.F. 대검",
+                 "곡궁",
+                 "쇠사슬 조끼",
+                 "음전자 망토",
+                 "쓸데없이 큰 지팡이",
+                 "여신의 눈물",
+                 "거인의 허리띠",
+                 "뒤집개",
+                 "연습용 장갑",
+             ]]
 
 # This data ame from data_proess
 ALL_HEROES = [
