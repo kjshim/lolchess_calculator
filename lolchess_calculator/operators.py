@@ -131,10 +131,13 @@ def calculate_chance_of_getting_deck(deck: List[Hero], game_state: InGameState, 
         result[h.name] = seen_count_per_game[h.name]
 
     for h_inst in game_state.on_deck:
-        result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
+        if h_inst.hero.name in result.keys():
+            result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
     for h_inst in game_state.on_board:
-        result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
+        if h_inst.hero.name in result.keys():
+            result[h_inst.hero.name] += (3 ** (h_inst.star - 1))
     for h in game_state.on_shop:
-        result[hero.name] += 1
+        if h.name in result.keys():
+            result[hero.name] += 1
 
     return result

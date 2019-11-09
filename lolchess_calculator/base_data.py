@@ -252,7 +252,7 @@ def hero_csv_to_list(hero_csv: str) -> Set[Hero]:
 
 
 def fuzzy_get_hero(name: str):
-    return difflib.get_close_matches(name, ALL_HEROES_DICT.keys(), 1, 0.0)[0]
+    return difflib.get_close_matches(name, ALL_HEROES_DICT.keys(), 1, 0.1)[0]
 
 
 def get_hero_inst(name: str, star: int):

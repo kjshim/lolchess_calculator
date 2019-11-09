@@ -51,7 +51,11 @@ class TestBasicData(unittest.TestCase):
 
     def test_combinations(self):
         game_state = base_data.InGameState(
-            6, 0, [base_data.get_hero_inst("문도", 2)], [], []
+            6, 0, [
+                base_data.get_hero_inst("문도", 2),
+                base_data.get_hero_inst("아리", 2),
+                base_data.get_hero_inst("올라프", 1),
+            ], [], []
         )
         deck = base_data.DECK_DATA[0]
         count_till_lev_2 = operators.calculate_round_till_level(1, 0, 2)
