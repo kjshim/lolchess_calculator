@@ -208,7 +208,7 @@ def score_deck(deck: SynergyLikelihoodItem) -> float:
         for syn_name in [v.name for v in hero.hero_classes] + [v.name for v in hero.origins]:
             for active_syn in deck.synergies:
                 if syn_name == active_syn.name:
-                    synergy_coeff *= (1.0 + ((active_syn.count * 0.1) ** 3) * 5)
+                    synergy_coeff *= (1.0 + ((active_syn.count * 0.3) ** 3))
 
         score += (hero.cost * star_coeff * synergy_coeff)
     return score * deck.chance

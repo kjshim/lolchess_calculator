@@ -78,12 +78,14 @@ def calculate():
         for v in synergy_chances:
             if len(v.likely_heroes) != deck_size:
                 continue
+            if v.chance < 0.6:
+                continue
             # if sum([syn.count for syn in v.synergies]) <= deck_size:
             #     continue
             interested.append((operators.score_deck(v), v))
         interested.sort(key=lambda v: v[0], reverse=True)
         msg = ""
-        for v in interested[:20]:
+        for v in interested[:30]:
             msg += f"{v[0]:.2f}\t{pformat(v[1])}\n"
         output(msg)
     except Exception as e:
@@ -117,7 +119,7 @@ t_ref.bind("<<Selection>>", on_select)
 tk.Label(root, text="Look forward re-rolls").grid(row=0, column=1)
 e_roll_count = tk.Entry(root, width=5)
 e_roll_count.grid(row=0, column=2)
-e_roll_count.insert(tk.END, "5")
+e_roll_count.insert(tk.END, "40")
 
 tk.Label(root, text="Level").grid(row=1, column=1)
 e_level = tk.Entry(root, width=5)
@@ -127,7 +129,7 @@ e_level.insert(tk.END, "1")
 tk.Label(root, text="Deck Size").grid(row=2, column=1)
 e_deck_size = tk.Entry(root, width=5)
 e_deck_size.grid(row=2, column=2)
-e_deck_size.insert(tk.END, "4")
+e_deck_size.insert(tk.END, "8")
 
 b = tk.Button(root, text="Calculate", command=calculate)
 b.grid(row=0, column=0)
